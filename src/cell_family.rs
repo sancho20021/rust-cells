@@ -1,4 +1,6 @@
-use std::{fmt::Debug, rc::Rc};
+use std::{borrow::BorrowMut, fmt::Debug, rc::Rc};
+
+use cell_family::GetWithOwner;
 
 cell_family::define!(type FooFamily: FooCellOwner for FooCell<T>);
 
@@ -80,7 +82,32 @@ impl<T: Debug> Debug for Deque<T> {
     }
 }
 
-fn main() {
+fn two_aliases_example() {
+    #[derive(Debug)]
+    struct MyStruct {
+        data: usize,
+    }
+    // cells usage
+    cell_family::define!(type XFamily: XCellOwner for XCell<T>);
+    let mut owner = XCellOwner::new();
+    let cell = XCell::new(MyStruct { data: 123 });
+    let ref1 = Rc::new(cell);
+    let ref2 = ref1.clone();
+    {
+        // mutation through ref1
+        ref1.get_mut(&mut owner).data = 35;
+        assert_eq!(ref1.get(&owner).data, 35);
+        assert_eq!(ref2.get(&owner).data, 35);
+    }
+    {
+        // mutation through ref2
+        ref2.get_mut(&mut owner).data = 42;
+        assert_eq!(ref1.get(&owner).data, 42);
+        assert_eq!(ref2.get(&owner).data, 42);
+    }
+}
+
+fn deque_example() {
     let mut deque = Deque::<usize> {
         head: Option::None,
         tail: Option::None,
@@ -90,4 +117,9 @@ fn main() {
     deque.add_first(1);
     deque.add_last(3);
     println!("{:?}", deque);
+}
+
+fn main() {
+    deque_example();
+    two_aliases_example();
 }
