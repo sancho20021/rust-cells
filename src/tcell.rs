@@ -94,7 +94,7 @@ mod client_lib {
 
     use qcell::TCellOwner;
 
-    use crate::dllist_lib::Node;
+    use crate::dllist_lib::{Node, NodePtr};
 
     pub fn simple_usage() {
         struct Brand;
@@ -144,12 +144,32 @@ mod client_lib {
         // let (first_ref, second_ref) = token.rw2(&first, &second);
     }
 
+    pub fn two_structs_in_one_vector_fail() {
+        trait Brand {
+
+        }
+
+        struct Brand1;
+        let mut token1 = TCellOwner::<Brand1>::new();
+        let first = Node::from_iter(&mut token1, [1, 2, 3]);
+
+        struct Brand2;
+        let mut token2 = TCellOwner::<Brand2>::new();
+        let second = Node::from_iter(&mut token2, [1, 2, 3]);
+
+        // does not compile:
+        // struct MultipleListsContainer<T> {
+        //     lists: Vec<Option<NodePtr<T, dyn Brand>>>,
+        // }
+    }
+
     pub fn run_all_examples() {
         simple_usage();
         unique_owner_restriction();
         static_owner_check();
         two_simultaneous_borrows();
         two_simultaneous_borrows_panic();
+        two_structs_in_one_vector_fail();
     }
 }
 
