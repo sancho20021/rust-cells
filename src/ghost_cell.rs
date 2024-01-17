@@ -275,6 +275,8 @@ mod ownership {
     pub mod client_lib {
         use ghost_cell::GhostToken;
 
+        use crate::{init_list, ListWrapper};
+
         use super::data_structure_lib::*;
 
         pub fn mix_representations() {
@@ -310,10 +312,34 @@ mod ownership {
             })
         }
 
+        pub fn immutable_incoming_aliases_allowed() {
+            GhostToken::new(|mut token| {
+                let (list, _tail) = init_list(&mut token, 5);
+                let list_wrapper = ListWrapper::new(list, token);
+
+                let token_alias = list_wrapper.expose_token();
+                let node_alias = list_wrapper.expose_node();
+                let _x = node_alias.borrow(token_alias).data;
+            });
+        }
+
+        pub fn mutable_incoming_alias_allowed() {
+            GhostToken::new(|mut token| {
+                let (list, _tail) = init_list(&mut token, 5);
+                let mut list_wrapper = ListWrapper::new(list, token);
+
+                let mut_node_ref = list_wrapper.expose_mut_node();
+                mut_node_ref.data = 666;
+                println!("{:?}", list_wrapper);
+            });
+        }
+
         pub fn run_all_examples() {
             mix_representations();
             mix_representations_fails();
             try_put_two_structs_in_one_vector();
+            immutable_incoming_aliases_allowed();
+            mutable_incoming_alias_allowed();
         }
     }
 }
@@ -345,33 +371,9 @@ mod dllist_client_lib {
         });
     }
 
-    pub fn immutable_incoming_aliases_allowed() {
-        GhostToken::new(|mut token| {
-            let (list, _tail) = init_list(&mut token, 5);
-            let list_wrapper = ListWrapper::new(list, token);
-
-            let token_alias = list_wrapper.expose_token();
-            let node_alias = list_wrapper.expose_node();
-            let _x = node_alias.borrow(token_alias).data;
-        });
-    }
-
-    pub fn mutable_incoming_alias_allowed() {
-        GhostToken::new(|mut token| {
-            let (list, _tail) = init_list(&mut token, 5);
-            let mut list_wrapper = ListWrapper::new(list, token);
-
-            let mut_node_ref = list_wrapper.expose_mut_node();
-            mut_node_ref.data = 666;
-            println!("{:?}", list_wrapper);
-        });
-    }
-
     pub fn run_all_examples() {
         list_wrapper_usage();
         view_as_vec();
-        immutable_incoming_aliases_allowed();
-        mutable_incoming_alias_allowed();
     }
 }
 
