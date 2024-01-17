@@ -1,6 +1,4 @@
-use std::{borrow::BorrowMut, fmt::Debug, rc::Rc};
-
-use cell_family::GetWithOwner;
+use std::{fmt::Debug, rc::Rc};
 
 cell_family::define!(type FooFamily: FooCellOwner for FooCell<T>);
 
@@ -108,6 +106,8 @@ fn two_aliases_example() {
 }
 
 fn deque_example() {
+    // Caution: given deque can only have one instance because its type marker is fixed
+    // This is bad, deque should be parametrized by the type marker, see qcell and tcell examples
     let mut deque = Deque::<usize> {
         head: Option::None,
         tail: Option::None,

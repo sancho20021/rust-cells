@@ -9,5 +9,19 @@ edition = "2021"
 name = "cell_family"
 path = "src/cell_family.rs"
 
+[[bin]]
+name = "ghost_cell"
+path = "src/ghost_cell.rs"
+
+[[bin]]
+name = "qcell"
+path = "src/qcell.rs"
+
+[[bin]]
+name = "tcell"
+path = "src/tcell.rs"
+
 [dependencies]
 cell-family = "0.1.0"
+ghost-cell = "0.2.4"
+qcell = "0.5.4"
